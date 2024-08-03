@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,21 +38,34 @@ public class AuthenticationService {
         var jwt = jwtUtil.generateToken(user);
         logger.debug("User signed up: {}. JWT: {}", user, jwt);
         return new JwtAuthenticationResponse(jwt);
+
     }
 
     public JwtAuthenticationResponse signIn(SignInRequest request) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                request.getUsername(),
-                request.getPassword()
-        ));
-        logger.debug("Authentication successful for user: {}", request.getUsername());
+        User user = null;
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    request.getUsername(),
+                    request.getPassword()
+            ));
+            logger.debug("Authentication successful for user: {}", request.getUsername());
 
-        var user = userService
-                .userDetailsService()
-                .loadUserByUsername(request.getUsername());
+            user = (User) userService
+                    .userDetailsService()
+                    .loadUserByUsername(request.getUsername());
 
-        var jwt = jwtUtil.generateToken(user);
-        logger.debug("JWT generated for user: {}. JWT: {}", user, jwt);
-        return new JwtAuthenticationResponse(jwt);
+            userService.resetFailedAttempts(user);
+
+            var jwt = jwtUtil.generateToken(user);
+            logger.debug("JWT generated for user: {}. JWT: {}", user, jwt);
+            return new JwtAuthenticationResponse(jwt);
+        } catch (BadCredentialsException e) {
+            if (user == null) {
+                user = (User) userService.userDetailsService().loadUserByUsername(request.getUsername());
+            }
+            userService.handleFailedLogin(user);
+            logger.warn("Invalid login attempt for user: {}", request.getUsername());
+            throw e;
+        }
     }
 }

@@ -35,16 +35,19 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        return httpSecurity.csrf(csrf -> csrf.disable())
+        return httpSecurity
+                .csrf(csrf -> csrf.disable()) // Отключение CSRF защиты (если это безопасно для вашего приложения)
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/auth/**", "/public/**").permitAll()
-                        .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
-                        .requestMatchers("/user/**").hasAnyAuthority("USER")
-                        .requestMatchers("/adminuser/**").hasAnyAuthority("USER", "ADMIN")
-                        .anyRequest().authenticated())
+                        .requestMatchers("/auth/**", "/public/**").permitAll() // Доступны всем
+                        .requestMatchers("/user/**").authenticated() // Доступен всем аутентифицированным пользователям
+                        .requestMatchers("/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN") // Доступен пользователям с ролями ADMIN или SUPER_ADMIN
+                        .requestMatchers("/moderator/**").hasAnyRole("MODERATOR", "SUPER_ADMIN") // Доступен пользователям с ролями MODERATOR или SUPER_ADMIN
+                        .anyRequest().authenticated()) // Все остальные запросы должны быть аутентифицированы
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .requiresChannel(channel -> channel
+                        .requestMatchers("/**").requiresSecure()) // Перенаправление на HTTPS
                 .build();
     }
 
