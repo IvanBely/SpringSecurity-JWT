@@ -39,46 +39,37 @@
 
 ### Модели
 
-- **Role**:
-  Перечисление ролей пользователей: `ROLE_USER` и `ROLE_ADMIN`.
+- **Role**: Перечисление ролей пользователей: `ROLE_USER`, `ROLE_ADMIN`, `ROLE_MODERATOR`, `ROLE_SUPER_ADMIN`.
 
-- **User**:
-  Сущность пользователя с полями: `id`, `username`, `password`, `email`, и `role`. Реализует интерфейс `UserDetails` для интеграции со Spring Security.
+- **User**: Сущность пользователя с полями: `id`, `username`, `password`, `email`, и `role`. Реализует интерфейс `UserDetails` для интеграции со Spring Security.
 
 ### Репозитории
 
-- **UserRepository**:
-  Репозиторий для сущности `User`, предоставляющий методы для поиска пользователей по имени и проверки уникальности имени и электронной почты.
+- **UserRepository**: Репозиторий для сущности `User`, предоставляющий методы для поиска пользователей по имени и проверки уникальности имени и электронной почты.
 
 ### Конфигурация безопасности
 
-- **SecurityConfig**:
-  Конфигурация безопасности для настройки фильтрации запросов, авторизации и аутентификации. Использует JWT для безсессионной аутентификации и настроен для обработки различных уровней доступа.
+- **SecurityConfig**: Конфигурация безопасности для настройки фильтрации запросов, авторизации и аутентификации. Использует JWT для безсессионной аутентификации и настроен для обработки различных уровней доступа.
 
-- **JwtAuthenticationFilter**:
-  Фильтр для проверки JWT в запросах и установки аутентификации в контексте безопасности.
+- **JwtAuthenticationFilter**: Фильтр для проверки JWT в запросах и установки аутентификации в контексте безопасности.
 
-- **JwtUtil**:
-  Утилитный класс для генерации и проверки JWT. Использует секретный ключ для подписи токенов и проверки их подлинности.
+- **JwtUtil**: Утилитный класс для генерации и проверки JWT. Использует секретный ключ для подписи токенов и проверки их подлинности.
 
 ### Сервисы
 
-- **AuthenticationService**:
-  Сервис для регистрации и аутентификации пользователей. Генерирует JWT для успешных операций.
+- **AuthenticationService**: Сервис для регистрации и аутентификации пользователей. Генерирует JWT для успешных операций.
 
-- **UserDetailsServiceImpl**:
-  Реализация `UserDetailsService` для загрузки пользователей по имени пользователя.
+- **UserDetailsServiceImpl**: Реализация `UserDetailsService` для загрузки пользователей по имени пользователя.
 
-- **UserService**:
-  Сервис для управления пользователями, включая создание, получение текущего пользователя и демонстрационное повышение прав до ADMIN.
-
+- **UserService**: Сервис для управления пользователями, включая создание, получение текущего пользователя и демонстрационное повышение прав до ADMIN.
 
 ## Примеры запросов (Postman)
 
 - **Регистрация пользователя**:
-  - **Метод**: POST
-  - **URL**: `http://localhost:8080/auth/sign-up`
-  - **Тело запроса** (JSON):
+
+  - Метод: POST
+  - URL: `http://localhost:8443/auth/sign-up`
+  - Тело запроса (JSON):
     ```json
     {
       "username": "user",
@@ -86,37 +77,52 @@
       "password": "password"
     }
     ```
-  - **Заголовки**:
-    - Content-Type: application/json
+  - Заголовки:
+    - Content-Type: `application/json`
 
 - **Авторизация пользователя**:
-  - **Метод**: POST
-  - **URL**: `http://localhost:8080/auth/sign-in`
-  - **Тело запроса** (JSON):
+
+  - Метод: POST
+  - URL: `http://localhost:8443/auth/sign-in`
+  - Тело запроса (JSON):
     ```json
     {
       "username": "user",
       "password": "password"
     }
     ```
-  - **Заголовки**:
-    - Content-Type: application/json
+  - Заголовки:
+    - Content-Type: `application/json`
 
 - **Получение примера доступа для всех авторизованных пользователей**:
-  - **Метод**: GET
-  - **URL**: `http://localhost:8080/example`
-  - **Заголовки**:
-    - Authorization: Bearer `<token>`
-    - 
-- **Получение роли ADMIN (для демонстрации)**:
-  - **Метод**: GET
-  - **URL**: `http://localhost:8080/example/get-admin`
-  - **Заголовки**:
-    - Authorization: Bearer `<token>`
+
+  - Метод: GET
+  - URL: `https://localhost:8443/example`
+  - Заголовки:
+    - Authorization: `Bearer <token>`
 
 - **Получение примера доступа для администраторов**:
-  - **Метод**: GET
-  - **URL**: `http://localhost:8080/example/admin`
-  - **Заголовки**:
-    - Authorization: Bearer `<token>`
+
+  - Метод: GET
+  - URL: `https://localhost:8443/example/admin`
+  - Заголовки:
+    - Authorization: `Bearer <token>`
+
+- **Получение примера доступа для модераторов**:
+
+  - Метод: GET
+  - URL: `https://localhost:8443/example/moderator`
+  - Заголовки:
+    - Authorization: `Bearer <token>`
+
+- **Изменение роли текущего пользователя**:
+
+  - Метод: GET
+  - URL: `https://localhost:8443/example/get-ROLE_USER`
+  - Заголовки:
+    - Authorization: `Bearer <token>`
+
+  - URL: `https://localhost:8443/example/get-ROLE_ADMIN`
+  - Заголовки:
+    - Authorization: `Bearer <token>`
 
