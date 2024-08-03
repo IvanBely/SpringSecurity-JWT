@@ -72,17 +72,51 @@
 - **UserService**:
   Сервис для управления пользователями, включая создание, получение текущего пользователя и демонстрационное повышение прав до ADMIN.
 
-## Запуск приложения
-
-1. Убедитесь, что у вас установлен Java и Maven.
-2. Склонируйте репозиторий: `git clone <url>`
-3. Перейдите в директорию проекта: `cd <папка проекта>`
-4. Соберите и запустите приложение: `mvn spring-boot:run`
 
 ## Примеры запросов
 
-- Регистрация пользователя:
-  ```bash
-  curl -X POST http://localhost:8080/auth/sign-up \
-       -H "Content-Type: application/json" \
-       -d '{"username": "user", "email": "user@example.com", "password": "password"}'
+- **Регистрация пользователя**:
+  - **Метод**: POST
+  - **URL**: `http://localhost:8080/auth/sign-up`
+  - **Тело запроса** (JSON):
+    ```json
+    {
+      "username": "user",
+      "email": "user@example.com",
+      "password": "password"
+    }
+    ```
+  - **Заголовки**:
+    - Content-Type: application/json
+
+- **Авторизация пользователя**:
+  - **Метод**: POST
+  - **URL**: `http://localhost:8080/auth/sign-in`
+  - **Тело запроса** (JSON):
+    ```json
+    {
+      "username": "user",
+      "password": "password"
+    }
+    ```
+  - **Заголовки**:
+    - Content-Type: application/json
+
+- **Получение примера доступа для всех авторизованных пользователей**:
+  - **Метод**: GET
+  - **URL**: `http://localhost:8080/example`
+  - **Заголовки**:
+    - Authorization: Bearer `<token>`
+    - 
+- **Получение роли ADMIN (для демонстрации)**:
+  - **Метод**: GET
+  - **URL**: `http://localhost:8080/example/get-admin`
+  - **Заголовки**:
+    - Authorization: Bearer `<token>`
+
+- **Получение примера доступа для администраторов**:
+  - **Метод**: GET
+  - **URL**: `http://localhost:8080/example/admin`
+  - **Заголовки**:
+    - Authorization: Bearer `<token>`
+
